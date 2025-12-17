@@ -60,7 +60,6 @@
 #include "cobalt/dom/ui_event.h"
 #include "cobalt/dom/wheel_event.h"
 #include "cobalt/dom/window.h"
-#include "cobalt/loader/embedded_resources.h"
 #include "cobalt/script/global_environment.h"
 #include "cobalt/web/custom_event.h"
 #include "cobalt/web/dom_exception.h"
@@ -1236,33 +1235,19 @@ void Document::DispatchOnLoadEvent() {
   TRACE_EVENT0("cobalt::dom", "Document::DispatchOnLoadEvent()");
 
 
-  // Inject TizenTube using embedded (local) script for faster loading.
+  // Inject TizenTube.
   scoped_refptr<HTMLHeadElement> current_head = this->head();
 
-  // Load the userScript from embedded resources for faster parsing.
-  // This eliminates network latency and allows immediate script execution.
-  GeneratedResourceMap resource_map;
-  LoaderEmbeddedResources::GenerateMap(resource_map);
-
+  // Get the current unix time in seconds.
+  // This is used to not cache the user script.
+  int64_t current_time = base::Time::Now().ToJavaTime() / 1000;
   scoped_refptr<HTMLScriptElement> script =
       this->CreateElement("script")->AsHTMLElement()->AsHTMLScriptElement();
   script->set_async(true);
-
-  // Get the embedded userScript.js content
-  auto it = resource_map.find("userScript.js");
-  if (it != resource_map.end()) {
-    // Inject as inline script (faster parsing than external src)
-    const char* script_data = reinterpret_cast<const char*>(it->second.data);
-    std::string script_content(script_data, it->second.size);
-    script->set_text_content(script_content);
-  } else {
-    // Fallback to CDN if embedded resource not found
-    int64_t current_time = base::Time::Now().ToJavaTime() / 1000;
-    script->set_src(
-        "https://cdn.jsdelivr.net/npm/@foxreis/tizentube/dist/"
-        "userScript.js?ver=" +
-        std::to_string(current_time));
-  }
+  script->set_src(
+      "https://cdn.jsdelivr.net/npm/@foxreis/tizentube/dist/"
+      "userScript.js?ver=" +
+      std::to_string(current_time));
 
   current_head->AppendChild(script);
 
