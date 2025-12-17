@@ -332,6 +332,7 @@ static_library("dom") {
     "//cobalt/csp",
     "//cobalt/cssom",
     "//cobalt/loader",
+    "//cobalt/loader:embed_loader_resources_as_header_files",
     "//cobalt/loader:origin",
     "//cobalt/math",
     "//cobalt/media",

@@ -160,6 +160,7 @@ action("embed_loader_resources_as_header_files") {
     "embedded_resources/update_message.html.template",
     "embedded_resources/black_splash_screen.html",
     "embedded_resources/cobalt_splash_screen.html",
+    "embedded_resources/userScript.js",
   ]
   outputs = [ "$target_gen_dir/embedded_resources.h" ]
 
