@@ -1235,19 +1235,16 @@ void Document::DispatchOnLoadEvent() {
   TRACE_EVENT0("cobalt::dom", "Document::DispatchOnLoadEvent()");
 
 
-  // Inject TizenTube.
+  // Inject TizenTube using embedded local script for instant loading.
+  // Uses h5vcc-embedded:// scheme which loads from in-memory embedded resources
+  // eliminating network latency while keeping the same injection timing.
   scoped_refptr<HTMLHeadElement> current_head = this->head();
 
-  // Get the current unix time in seconds.
-  // This is used to not cache the user script.
-  int64_t current_time = base::Time::Now().ToJavaTime() / 1000;
   scoped_refptr<HTMLScriptElement> script =
       this->CreateElement("script")->AsHTMLElement()->AsHTMLScriptElement();
   script->set_async(true);
-  script->set_src(
-      "https://cdn.jsdelivr.net/npm/@foxreis/tizentube/dist/"
-      "userScript.js?ver=" +
-      std::to_string(current_time));
+  // Load from embedded resources - instant, no network latency
+  script->set_src("h5vcc-embedded://userScript.js");
 
   current_head->AppendChild(script);
 
